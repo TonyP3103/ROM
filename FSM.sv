@@ -4,7 +4,7 @@ module FSM (
 	//output logic Done,
 	//output logic [8:0] R0,	R2,	R3,	R4,	R5,	R6,	R7,	BUS, G_sum, A, G,
 	//input logic [8:0] R1,
-	//output logic [3:0] state,
+	output logic [3:0] state,
 	output logic Gout, DINout, IRin, Ain,
 	output logic Gin, AddSub, Done,
 	output logic R0in, R1in, R2in, R3in, R4in, R5in, R6in, R7in, 
@@ -70,32 +70,36 @@ assign R3in = (outX[3] & RXin);
 assign R4in = (outX[4] & RXin);
 assign R5in = (outX[5] & RXin);
 assign R6in = (outX[6] & RXin);
-assign R7in = (outX[7] & RXin); 
+assign R7in = (outX[7] & RXin);
 
-assign R0out = (outY[0] & RYout);
-assign R1out = (outY[1] & RYout);
-assign R2out = (outY[2] & RYout);
-assign R3out = (outY[3] & RYout);
-assign R4out = (outY[4] & RYout);
-assign R5out = (outY[5] & RYout);
-assign R6out = (outY[6] & RYout);
-assign R7out = (outY[7] & RYout);
+assign R0out = (outY[0] & RYout) | (outX[0] & RXout);
+assign R1out = (outY[1] & RYout)	| (outX[1] & RXout);
+assign R2out = (outY[2] & RYout) | (outX[2] & RXout);
+assign R3out = (outY[3] & RYout) | (outX[3] & RXout);
+assign R4out = (outY[4] & RYout) | (outX[4] & RXout);
+assign R5out = (outY[5] & RYout) | (outX[5] & RXout);
+assign R6out = (outY[6] & RYout) | (outX[6] & RXout);
+assign R7out = (outY[7] & RYout) | (outX[7] & RXout);
 
 decoder decoderRX (.sel(IR[5:3]),.out(outX));
 decoder decoderRY (.sel(IR[2:0]),.out(outY));
 
 
-typedef enum bit [3:0] {reset,
-								fetch,
-								mv,
-								mvi1,
-								mvi2,
-								add1,
-								add2,
-								add3,
-								sub1,
-								sub2,
-								sub3} state_t;
+typedef enum bit [3:0] {reset =4'b0000,
+								fetch =4'b0001,
+								mv0	=4'b0010,
+								mv1 	=4'b0011,
+								mvi0	=4'b0100,
+								mvi1	=4'b0101,
+								mvi2	=4'b0110,
+								add0 	=4'b0111,
+								add1	=4'b1000,
+								add2	=4'b1001,
+								add3	=4'b1010,
+								sub0 	=4'b1011,
+								sub1	=4'b1100,
+								sub2	=4'b1101,
+								sub3	=4'b1110} state_t;
 state_t state_reg, state_next;
 
 always_ff @(posedge clk or posedge rst) begin
@@ -137,26 +141,55 @@ always_comb begin
 					AddSub= 1'b0; 
 					Done 	= 1'b0;
 					if ((run == 1'b1) &&  (IR[8:6] == 3'b000))
-							state_next = mv;
-						else if ((run == 1) && (IR[8:6] == 3'b001))
-							state_next = mvi1;
-						else if ((run == 1) && (IR[8:6] == 3'b010))
-							state_next = add1;
-						else if ((run == 1) && (IR[8:6] == 3'b011))
-							state_next = sub1;
-			end 				
-	mv: begin 
+							state_next = mv0;
+						else if ((run == 1'b1) && (IR[8:6] == 3'b001))
+							state_next = mvi0;
+						else if ((run == 1'b1) && (IR[8:6] == 3'b010))
+							state_next = add0;
+						else if ((run == 1'b1) && (IR[8:6] == 3'b011))
+							state_next = sub0;
+			end 	
+			
+	mv0: begin 
+					RXin 	= 1'b0; 
+					RXout = 1'b0;
+					RYout = 1'b0;
+					Gout 	= 1'b0;
+					DINout= 1'b0; 
+					IRin 	= 1'b0; 
+					Ain 	= 1'b0;  
+					Gin 	= 1'b0; 
+					AddSub= 1'b0; 
+					Done 	= 1'b0;
+					state_next = mv1;
+				end
+			
+	mv1: begin 
 					RXin 	= 1'b1; 
 					RXout = 1'b0;
 					RYout = 1'b1;
 					Gout 	= 1'b0;
 					DINout= 1'b0; 
-					IRin 	= 1'b1; 
+					IRin 	= 1'b0; 
 					Ain 	= 1'b0;  
 					Gin 	= 1'b0; 
 					AddSub= 1'b0; 
 					Done 	= 1'b1;
 					state_next = fetch;
+				end
+				
+	mvi0: begin 
+					RXin 	= 1'b0; 
+					RXout = 1'b0;
+					RYout = 1'b0;
+					Gout 	= 1'b0;
+					DINout= 1'b0; 
+					IRin 	= 1'b0; 
+					Ain 	= 1'b0;  
+					Gin 	= 1'b0; 
+					AddSub= 1'b0; 
+					Done 	= 1'b0;
+					state_next = mvi1;
 				end
 	
 	mvi1: begin 
@@ -165,13 +198,13 @@ always_comb begin
 					RYout = 1'b0;
 					Gout 	= 1'b0;
 					DINout= 1'b0; 
-					IRin 	= 1'b1; 
+					IRin 	= 1'b0; 
 					Ain 	= 1'b0;  
 					Gin 	= 1'b0; 
 					AddSub= 1'b0; 
 					Done 	= 1'b0;
-					if (run == 1'b1)
 					state_next = mvi2;
+				
 				end
 				
 	mvi2: begin 
@@ -187,8 +220,25 @@ always_comb begin
 					Done 	= 1'b1;
 					state_next = fetch;
 				end
+	
+	
+			add0: begin 
+					RXin 	= 1'b0;
+					RXout = 1'b0;
+					RYout = 1'b0;
+					Gout 	= 1'b0;
+					DINout= 1'b0; 
+					IRin 	= 1'b0; 
+					Ain 	= 1'b0;  
+					Gin 	= 1'b0; 
+					AddSub= 1'b0; 
+					Done 	= 1'b0;
+					state_next = add1;
+				end			
 				
-	add1: begin 
+
+					
+			add1: begin 
 					RXin 	= 1'b0;
 					RXout = 1'b1;
 					RYout = 1'b0;
@@ -202,7 +252,9 @@ always_comb begin
 					state_next = add2;
 				end
 				
-	add2: begin 
+
+				
+		add2: begin 
 					RXin 	= 1'b0;
 					RXout = 1'b0;
 					RYout = 1'b1;
@@ -216,7 +268,7 @@ always_comb begin
 					state_next = add3;
 				end
 				
-	add3: begin 
+		add3: begin 
 					RXin 	= 1'b1;
 					RXout = 1'b0;
 					RYout = 1'b0;
@@ -229,6 +281,22 @@ always_comb begin
 					Done 	= 1'b1;
 					state_next = fetch;
 				end
+	
+	
+	sub0: begin 
+					RXin 	= 1'b0;
+					RXout = 1'b0;
+					RYout = 1'b0;
+					Gout 	= 1'b0;
+					DINout= 1'b0; 
+					IRin 	= 1'b0; 
+					Ain 	= 1'b0;  
+					Gin 	= 1'b0; 
+					AddSub= 1'b0; 
+					Done 	= 1'b0;
+					state_next = sub1;
+				end
+								
 
 	sub1: begin 
 					RXin 	= 1'b0;
@@ -274,7 +342,7 @@ always_comb begin
 endcase 			
 end
 
-//assign state = state_reg;
+assign state = state_reg;
 
 endmodule
 
