@@ -1,12 +1,13 @@
 module datapath (
 	input logic [8:0] DIN,
 	input logic rst,clk,run, 
-	output logic Done,IRin,
+	output logic Done,
+	output logic [3:0] state,
 	output logic [8:0] R0,	R1,	R2,	R3,	R4,	R5,	R6,	R7,	BUS, G_sum, A, G);
 	
 	
 	logic R0out,	R1out,	R2out,	R3out,	R4out,	R5out,	R6out,	R7out; 
-	logic R0in,		R1in,		R2in,		R3in,		R4in,		R5in,		R6in,		R7i;
+	logic R0in,		R1in,		R2in,		R3in,		R4in,		R5in,		R6in,		R7in,IRin;
 	 logic Ain,	AddSub,	Gin, DINout, Gout;
 	FSM FSM1 (			.Done(Done),
 							.DIN(DIN),
@@ -34,6 +35,7 @@ module datapath (
 							.IRin(IRin),
 							.DINout(DINout),
 							.Gout(Gout),
+							.state(state),
 							.run(run)
 							/*.R0(R0),	
 							.R1(R1),	
