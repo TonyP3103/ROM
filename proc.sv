@@ -1,10 +1,11 @@
 module proc (
 	input logic Mclock,Pclock,rst,run,
 	output logic Done,
-	output logic [8:0] R0,	R1,	R2,	R3,	R4,	R5,	R6,	R7,	BUS, G_sum, A, G);
+	output logic [8:0] R0,	R1,	R2,	R3,	R4,	R5,	R6,	R7,	BUS, G_sum, A, G,IR,
+	output logic [4:0] ADDRESS,
+	output logic [8:0] data,
+	output logic [3:0] state);
 	
-	logic [4:0] ADDRESS;
-	logic [8:0] data;
 	
 upcounter5bit counter (
 								.clk(Mclock),
@@ -33,6 +34,8 @@ datapath datapath1 (
 							.BUS(BUS),
 							.G_sum(G_sum),
 							.A(A),
-							.G(G));
+							.G(G),
+							.state(state),
+							.IR(IR));
 				
 endmodule 
