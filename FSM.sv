@@ -8,10 +8,10 @@ module FSM (
 	output logic Gout, DINout, IRin, Ain,
 	output logic Gin, AddSub, Done,
 	output logic R0in, R1in, R2in, R3in, R4in, R5in, R6in, R7in, 
-	output logic R0out, R1out, R2out, R3out, R4out, R5out, R6out, R7out
-	//output logic [8:0] IR
+	output logic R0out, R1out, R2out, R3out, R4out, R5out, R6out, R7out,
+	output logic [8:0] IR
 );
-	logic [8:0] IR;
+	//logic [8:0] IR;
 	/* logic Gout, DINout, IRin, Ain;
 	 logic Gin, AddSub;
 	 logic R0in, R1in, R2in,R3in, R4in, R5in, R6in, R7in;
