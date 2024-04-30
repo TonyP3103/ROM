@@ -3,7 +3,7 @@ module datapath (
 	input logic rst,clk,run, 
 	output logic Done,
 	output logic [3:0] state,
-	output logic [8:0] R0,	R1,	R2,	R3,	R4,	R5,	R6,	R7,	BUS, G_sum, A, G);
+	output logic [8:0] R0,	R1,	R2,	R3,	R4,	R5,	R6,	R7,	BUS, G_sum, A, G,IR);
 	
 	
 	logic R0out,	R1out,	R2out,	R3out,	R4out,	R5out,	R6out,	R7out; 
@@ -36,7 +36,8 @@ module datapath (
 							.DINout(DINout),
 							.Gout(Gout),
 							.state(state),
-							.run(run)
+							.run(run),
+							.IR(IR)
 							/*.R0(R0),	
 							.R1(R1),	
 							.R2(R2),
